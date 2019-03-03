@@ -36,7 +36,8 @@ module.exports = {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    { src: '~/plugins/vue2-google-maps.js', ssr: false }
+    { src: '~/plugins/vue2-google-maps.js', ssr: true },
+    { src: '~/plugins/vue-element-loading.js', ssr: false }
   ],
 
   /*
@@ -58,13 +59,14 @@ module.exports = {
   vendor: ['vue2-google-maps'],
 
   env: {
-    APIKEY: 'AIzaSyCkwSUwAoX1aLBVOqI5BgyZoemNvj3Mh48',
-    AUTHDOMAIN: 'my-lunch-map.firebaseapp.com',
-    DATABASEURL: 'https://my-lunch-map.firebaseio.com',
-    PROJECTID: 'my-lunch-map',
-    STORAGEBUCKET: 'my-lunch-map.appspot.com',
-    MESSAGINGSENDERID: '150983543226',
-    GOOGLE_MAPS_API_KEY: 'AIzaSyDuakEHdU68nsCD1iIQmLYTMDbYUaruNxU'
+    APIKEY: process.env.APIKEY,
+    AUTHDOMAIN: process.env.AUTHDOMAIN,
+    DATABASEURL: process.env.DATABASEURL,
+    PROJECTID: process.env.PROJECTID,
+    STORAGEBUCKET: process.env.STORAGEBUCKET,
+    MESSAGINGSENDERID: process.env.MESSAGINGSENDERID,
+    GOOGLEMAPSAPIKEY: process.env.GOOGLEMAPSAPIKEY,
+    FUNCTIONSURL: 'https://us-central1-my-lunch-map.cloudfunctions.net'
   },
 
   /*

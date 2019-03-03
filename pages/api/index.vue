@@ -18,6 +18,8 @@
               <a class="btn btn-default" @click="createMap">create map</a>
               <a class="btn btn-default" @click="testMarker">testMarker</a>
               <a class="btn btn-default" @click="getMapList">get map</a>
+              <a class="btn btn-default" @click="loading">loading</a>
+              <a class="btn btn-default" @click="getUser">getUser</a>
             </li>
           </ul>
 
@@ -28,7 +30,7 @@
           </ul>
         </div>
         <div class="col-xs-6">
-          <h2>User: {{ isLogin }}</h2>
+          <h2>User isLogin: {{ isLogin }}</h2>
           <ul class="icon-list" v-if="user">
             <li>{{ user.name }}</li>
             <li>{{ user.user_id }}</li>
@@ -82,6 +84,7 @@
 import { mapGetters } from 'vuex'
 import firebase from '~/plugins/firebase'
 import auth from '~/plugins/auth'
+import authMixin from '~/mixins/auth'
 
 export default {
   components: {
@@ -148,23 +151,8 @@ export default {
   ),
   created() {
   },
+  mixins: [authMixin],
   methods: {
-    login() {
-      this.$store.dispatch('app/login').then((user) => {
-        firebase.auth().currentUser.getIdToken().then((token) => {
-          this.$cookies.set('__session', token, {
-            path: '/',
-            maxAge: 60 * 60 * 24 * 7
-          })
-        })
-      })
-    },
-    logout() {
-      console.log('logout')
-      this.$store.dispatch('app/logout').then((res) => {
-        console.log('logout', res)
-      })
-    },
     check() {
       const user = firebase.auth().currentUser
       console.log('check user', user)
@@ -203,7 +191,7 @@ export default {
       console.log('this', this.$store.commit('app/isLoading', true))
     },
     getMapList() {
-      this.$store.dispatch('app/getMap')
+      this.$store.dispatch('map/getMap')
     },
     onCenterChanged (center) {
       this.mapInfo.center = {lat: center.lat(), lng: center.lng()}
@@ -247,11 +235,20 @@ export default {
       this.infoWindowPos = position
       this.infoContent = '新しいお店'
     },
+    loading() {
+      this.$store.commit('app/isLoading', true)
+    },
     testMarker() {
       this.infoWinOpen = true
       this.currentMidx = 1
       this.infoWindowPos = this.markers[1].position
       this.infoContent = this.markers[1].infoText
+    },
+    getUser() {
+      const uid = 'iUeRPpyhWRV1QlZKYCELD2dR4d62'
+      this.$store.dispatch('map/getUser', uid).then((response) => {
+        console.log('response', response)
+      })
     }
   }
 }

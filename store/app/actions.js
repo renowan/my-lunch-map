@@ -1,34 +1,43 @@
 import firebase from '~/plugins/firebase'
+import axios from 'axios'
+// const db = firebase.firestore()
 
-const db = firebase.firestore()
+const functionsUrl = process.env.FUNCTIONSURL
 
 export default {
-  login({ commit, state, dispatch }) {
+  async login({ commit, state, dispatch }) {
+    const provider = new firebase.auth.GoogleAuthProvider()
+    await firebase.auth().signInWithPopup(provider)
+    const token = await firebase.auth().currentUser.getIdToken()
+    const headers = { 'Authorization': `Bearer ${token}` }
+    const userResponse = await axios.get(`${functionsUrl}/app`, { headers })
+
+    /* eslint-disable camelcase */
+    const { user_id, name, picture, email, email_verified, auth_time } = userResponse.data
+
+    const user = {
+      user_id,
+      name,
+      picture,
+      email,
+      email_verified,
+      auth_time
+    }
+
+    commit('user', user)
+    commit('isLogin', true)
+
     return new Promise((resolve, reject) => {
-      const provider = new firebase.auth.GoogleAuthProvider()
-      firebase.auth().signInWithPopup(provider).then((user) => {
-        resolve(user)
-      })
+      resolve(token)
     })
   },
   logout({ commit, state, dispatch }) {
-    return firebase.auth().signOut()
-  },
-  test({ commit, state, dispatch }, data) {
-    console.log('test', data)
-  },
-  createMap({ commit, state, dispatch }, data) {
-    db.collection('map').add(data).then((res) => {
-      console.log('res', res)
-    })
-  },
-  getMap({ commit, state, dispatch }, data) {
-    return db.collection('map').get().then((snapshot) => {
-      const mapList = []
-      snapshot.forEach((doc) => {
-        mapList.push(doc.data())
+    return new Promise((resolve, reject) => {
+      firebase.auth().signOut().then(() => {
+        commit('user', null)
+        commit('isLogin', false)
+        resolve()
       })
-      return mapList
     })
   }
 }
