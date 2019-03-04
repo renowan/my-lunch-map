@@ -23,7 +23,7 @@
               </div>
             </div>
 
-            <div class="col-lg-12">
+            <div class="col-lg-12 ph40">
               <hr>
             </div>
 
@@ -33,6 +33,22 @@
             <TextInput v-model="address" label="住所" placeholder="住所" :max="100" :show-error="showError" />
 
             <TextInput v-model="comment" label="コメント" placeholder="コメント" type="textarea" :max="200" :show-error="showError" />
+
+            <div class="form-group mb40">
+              <label class="col-lg-3 control-label">編集権限</label>
+              <div class="col-lg-8">
+                <div>
+                  <label class="radio-inline mr10">
+                    <input type="radio" name="permission" id="permission" :value="0" v-model="permission">自分のみ編集できる
+                  </label>
+                </div>
+                <div>
+                  <label class="radio-inline mr10">
+                    <input type="radio" name="permission" id="permission" :value="1" v-model="permission">誰でも編集できる
+                  </label>
+                </div>
+              </div>
+            </div>
 
             <div class="form-group">
               <label class="col-lg-3 control-label"></label>
@@ -99,12 +115,12 @@ export default {
       name: '',
       address: '',
       comment: '',
-      showError: false
+      showError: false,
+      permission: 0
     }
   },
   methods: {
     setPlace(place) {
-      console.log('place', place)
       this.center = {
         lat: place.geometry.location.lat(),
         lng: place.geometry.location.lng()
@@ -119,10 +135,15 @@ export default {
       }
       const postObj = {
         creatorName: this.creatorName,
+        user: {
+          user_id: this.user.user_id,
+          name: this.user.name
+        },
         center: this.center,
         name: this.name,
         address: this.address,
         comment: this.comment,
+        permission: this.permission
       }
 
       this.$store.commit('app/isLoading', true)

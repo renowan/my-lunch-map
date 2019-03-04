@@ -245,10 +245,11 @@ export default {
       this.infoContent = this.markers[1].infoText
     },
     getUser() {
-      const uid = 'iUeRPpyhWRV1QlZKYCELD2dR4d62'
-      this.$store.dispatch('map/getUser', uid).then((response) => {
-        console.log('response', response)
-      })
+      console.log('xx', this.user)
+      // const uid = 'iUeRPpyhWRV1QlZKYCELD2dR4d62'
+      // this.$store.dispatch('map/getUser', uid).then((response) => {
+      //   console.log('response', response)
+      // })
     }
   }
 }

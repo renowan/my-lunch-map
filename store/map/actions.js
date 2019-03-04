@@ -7,7 +7,6 @@ const functionsUrl = process.env.FUNCTIONSURL
 export default {
   createMap({ commit, state, dispatch }, data) {
     return db.collection('map').add(data).then((res) => {
-      // console.log('res', res.id)
       return res.id
     })
   },
@@ -22,5 +21,10 @@ export default {
   },
   getUser({ commit, state, dispatch }, uid) {
     return axios.get(`${functionsUrl}/getUser`, { params: { uid } })
+  },
+  getMapDetail({ commit, state, dispatch }, mapid) {
+    return db.doc(`map/${mapid}`).get().then((doc) => {
+      return doc.data()
+    })
   }
 }
