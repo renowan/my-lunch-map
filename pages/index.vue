@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container search-results-page">
     <div class="row">
 
       <div class="col-xs-12 pt20 mb30">
@@ -18,67 +18,32 @@
         </div>
       </div>
 
-      <div class="col-md-6 col-md-offset-3">
-        <h2 class="mb20 text-center">
-          マップ一覧
-        </h2>
-        <ul class="icon-list">
-          <li>
-            <a class="btn-link">aaaaa</a>
-            <p>oaoibohbah</p>
-          </li>
-          <li>
-            <a class="btn-link">aaaaa</a>
-            <p>oaoibohbah</p>
-          </li>
-          <li>
-            <a class="btn-link">aaaaa</a>
-            <p>oaoibohbah</p>
-          </li>
-          <li>
-            <a class="btn-link">aaaaa</a>
-            <p>oaoibohbah</p>
-          </li>
-          <li>
-            <a class="btn-link">aaaaa</a>
-            <p>oaoibohbah</p>
-          </li>
-          <li>
-            <a class="btn-link">aaaaa</a>
-            <p>oaoibohbah</p>
-          </li>
-          <li>
-            <a class="btn-link">aaaaa</a>
-            <p>oaoibohbah</p>
-          </li>
-        </ul>
+      <div class="col-md-8 col-md-offset-2">
+        <div class="panel">
+          <div class="panel-heading">
+            <span class="panel-title text-muted hidden-xs">マップ一覧</span>
+          </div>
+          <div class="panel-body pn">
 
-        <div class="page-navi text-center">
-          <a><i class="fa fa-angle-left" /> 前へ</a> 1
-          <a>次へ <i class="fa fa-angle-right" /></a>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th width="40">No.</th>
+                  <th>マップ名</th>
+                  <th width="200">作成者</th>
+                  <th width="140">作成日</th>
+                  <th width="60">編集</th>
+                </tr>
+              </thead>
+              <tbody>
+                <top-table-tr v-for="(item, index) in mapList" :key="index" :index="index" :item="item" />
+              </tbody>
+            </table>
+
+          </div>
         </div>
-
-        <!-- <nav aria-label="Page navigation">
-          <ul class="pagination">
-            <li>
-              <a href="#" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-              </a>
-            </li>
-            <li><a href="#">1</a></li>
-            <li><a href="#">2</a></li>
-            <li><a href="#">3</a></li>
-            <li><a href="#">4</a></li>
-            <li><a href="#">5</a></li>
-            <li>
-              <a href="#" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-              </a>
-            </li>
-          </ul>
-        </nav> -->
-
       </div>
+
     </div>
   </div>
 </template>
@@ -86,11 +51,22 @@
 <script>
 import { mapGetters } from 'vuex'
 import authMixin from '~/mixins/auth'
+import TopTableTr from '~/components/TopTableTr'
 
 export default {
+  async asyncData({ store, app }) {
+    const mapList = await store.dispatch('map/getMap')
+    return { mapList }
+  },
   components: {
+    TopTableTr
   },
   mixins: [authMixin],
+  data() {
+    return {
+      mapList: []
+    }
+  },
   computed: Object.assign({},
     mapGetters({
       app: 'app/state',
@@ -102,7 +78,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .login-btn-box {
   text-align: center;
 }
@@ -120,5 +96,17 @@ export default {
   -webkit-text-size-adjust: none;
 }
 
+.search-results-page {
+  ul.result-meta {
+    list-style: none;
+    padding-left: 0;
+    margin-left: -5px;
+    margin-bottom: 5px;
+  }
 
+  .search-result h3, .search-result > a {
+      display: block;
+      margin-bottom: 5px;
+  }
+}
 </style>

@@ -27,7 +27,7 @@ module.exports = {
   ** Global CSS
   */
   css: [
-    '@/static/css/bootstrap.min.css',
+    // '@/static/css/bootstrap.min.css',
     '@/static/skin/default_skin/css/theme.css',
     '@/static/css/customize.css'
   ],

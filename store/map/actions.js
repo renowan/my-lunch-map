@@ -6,6 +6,7 @@ const functionsUrl = process.env.FUNCTIONSURL
 
 export default {
   createMap({ commit, state, dispatch }, data) {
+    data.createdAt = firebase.firestore.FieldValue.serverTimestamp()
     return db.collection('map').add(data).then((res) => {
       return res.id
     })
@@ -14,7 +15,10 @@ export default {
     return db.collection('map').get().then((snapshot) => {
       const mapList = []
       snapshot.forEach((doc) => {
-        mapList.push(doc.data())
+        console.log('doc', doc.get('created_at'))
+        const data = doc.data()
+        data.id = doc.id
+        mapList.push(data)
       })
       return mapList
     })

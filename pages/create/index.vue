@@ -32,7 +32,7 @@
             <TextInput v-model="name" label="マップ名" placeholder="マップ名" required :max="100" :show-error="showError" />
             <TextInput v-model="address" label="住所" placeholder="住所" :max="100" :show-error="showError" />
 
-            <TextInput v-model="comment" label="コメント" placeholder="コメント" type="textarea" :max="200" :show-error="showError" />
+            <TextInput v-model="description" label="コメント" placeholder="コメント" type="textarea" :max="200" :show-error="showError" />
 
             <div class="form-group mb40">
               <label class="col-lg-3 control-label">編集権限</label>
@@ -94,7 +94,7 @@ export default {
         if (this.address.length > 100) {
           return false
         }
-        if (this.comment.length > 200) {
+        if (this.description.length > 200) {
           return false
         }
         return true
@@ -114,7 +114,7 @@ export default {
       },
       name: '',
       address: '',
-      comment: '',
+      description: '',
       showError: false,
       permission: 0
     }
@@ -142,14 +142,14 @@ export default {
         center: this.center,
         name: this.name,
         address: this.address,
-        comment: this.comment,
+        description: this.description,
         permission: this.permission
       }
 
       this.$store.commit('app/isLoading', true)
       this.$store.dispatch('map/createMap', postObj).then((id) => {
         this.$store.commit('app/isLoading', false)
-        console.log('id', id)
+        // console.log('id', id)
         this.$router.push(`/map/${id}`)
       }).catch(() => {
         this.$store.commit('app/isLoading', false)
