@@ -27,9 +27,9 @@ module.exports = {
   ** Global CSS
   */
   css: [
-    // '@/static/css/bootstrap.min.css',
-    '@/static/skin/default_skin/css/theme.css',
-    '@/static/css/customize.css'
+    '~/assets/scss/argon.scss',
+    '~/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css'
+    // '@/static/css/customize.css'
   ],
 
   /*
