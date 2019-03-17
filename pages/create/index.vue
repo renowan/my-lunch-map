@@ -1,69 +1,62 @@
 <template>
   <div>
-    <div class="container">
+    <div class="header bg-gradient-primary pt-5 pt-md-7">
+      <div class="container-fluid">
+        <div class="header-body">
+          マップ作成<br>
+          <small>マップの中心点を決めてください。</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid mt--7">
       <div class="row">
-        <div class="col-xs-12 pt20 mb30">
-          <div class="content-header mb20">
-            <h2>マップ作成</h2>
-            <p class="lead">マップ中心地、基本情報を入力してください: {{ name }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="input-area d-flex">
-      <div class="left-side flex">
+        <div class="col-4">
+          <div class="card card-stats border-0">
 
-        <div class="row">
-          <div class="form-horizontal">
+            <div class="card-body">
 
-            <div class="form-group mbn">
-              <label class="col-lg-3 control-label">中心地検索</label>
-              <div class="col-lg-8">
-                <gmap-place-input class="gmap-place-input" :default-place="place" @place_changed="setPlace" />
+              <div class="form-group">
+                <label class="form-control-label">中心地検索</label>
+                <div class="gmap-place-input-wrapper">
+                  <gmap-place-input class="gmap-place-input" :default-place="place" @place_changed="setPlace" />
+                </div>
               </div>
-            </div>
 
-            <div class="col-lg-12 ph40">
-              <hr>
-            </div>
+              <TextInput v-model="creatorName" label="作成者名" placeholder="作成者名" required :max="30" :show-error="showError" />
+              <TextInput v-model="name" label="マップ名" placeholder="マップ名" required :max="100" :show-error="showError" />
+              <TextInput v-model="address" label="住所" placeholder="住所" :max="100" :show-error="showError" />
+              <TextInput v-model="description" label="コメント" placeholder="コメント" type="textarea" :max="200" :show-error="showError" />
 
-            <TextInput v-model="creatorName" label="作成者名" placeholder="作成者名" required :max="30" :show-error="showError" />
+              <div class="form-group">
 
-            <TextInput v-model="name" label="マップ名" placeholder="マップ名" required :max="100" :show-error="showError" />
-            <TextInput v-model="address" label="住所" placeholder="住所" :max="100" :show-error="showError" />
-
-            <TextInput v-model="description" label="コメント" placeholder="コメント" type="textarea" :max="200" :show-error="showError" />
-
-            <div class="form-group mb40">
-              <label class="col-lg-3 control-label">編集権限</label>
-              <div class="col-lg-8">
+                <label class="form-control-label">編集権限</label>
                 <div>
                   <label class="radio-inline mr10">
-                    <input type="radio" name="permission" id="permission" :value="0" v-model="permission">自分のみ編集できる
+                    <input type="radio" name="permission" id="permission" :value="0" v-model="permission"> 自分のみ編集できる
                   </label>
                 </div>
                 <div>
                   <label class="radio-inline mr10">
-                    <input type="radio" name="permission" id="permission" :value="1" v-model="permission">誰でも編集できる
+                    <input type="radio" name="permission" id="permission" :value="1" v-model="permission"> 誰でも編集できる
                   </label>
                 </div>
               </div>
+
+              <button id="quick-compose" type="button" class="btn btn-primary btn-block mb-20" @click="onCreate">作成</button>
+
             </div>
 
-            <div class="form-group">
-              <label class="col-lg-3 control-label"></label>
-              <div class="col-lg-8">
-                <button id="quick-compose" type="button" class="btn btn-primary light btn-block fw600" @click="onCreate">作成</button>
-              </div>
-            </div>
           </div>
         </div>
-        <!-- center: {{ center }} -->
-      </div>
-      <div class="right-side flex">
-        <MyMap v-model="center" />
+        <div class="col-8">
+          <div class="card shadow border-0">
+            <MyMap v-model="center" height="760px" />
+          </div>
+        </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -160,21 +153,32 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.input-area {
-  width: 100%;
-  height: 600px;
-  background-color: #f2f2f2;
-
-  .left-side {
-    padding: 30px 0;
-    flex: 1;
-  }
-  .right-side {
-    flex: 2;
-  }
-
-  .gmap-input {
-    padding: 0 20px;
-  }
+.header-body {
+  color: #fff;
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-align: center;
+  padding-bottom: 8rem;
 }
+
+.card-body {
+  height: 760px;
+}
+// .input-area {
+//   width: 100%;
+//   height: 600px;
+//   background-color: #f2f2f2;
+
+//   .left-side {
+//     padding: 30px 0;
+//     flex: 1;
+//   }
+//   .right-side {
+//     flex: 2;
+//   }
+
+//   .gmap-input {
+//     padding: 0 20px;
+//   }
+// }
 </style>

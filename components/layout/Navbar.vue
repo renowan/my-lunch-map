@@ -18,12 +18,12 @@
     <!-- User -->
     <ul class="navbar-nav align-items-center d-none d-md-flex">
       <li class="nav-item d-none d-lg-block ml-lg-4">
-        <a class="btn btn-neutral btn-icon" v-if="isLogin">
+        <nuxt-link to="/create" class="btn btn-neutral btn-icon" v-if="isLogin">
           <span class="btn-inner--icon">
             <i class="ni ni-fat-add"></i>
           </span>
           <span class="nav-link-inner--text">マップ作成</span>
-        </a>
+        </nuxt-link>
         <a class="btn btn-neutral btn-icon" @click="login" v-else>
           <span class="btn-inner--icon">
             <span class="btn-inner--icon"><img src="~/assets/img/icons/common/google.svg"></span>
@@ -31,7 +31,7 @@
           <span class="nav-link-inner--text">ログイン</span>
         </a>
       </li>
-      <li class="nav-item dropdown">
+      <li class="nav-item dropdown" v-if="isLogin">
         <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <div class="media align-items-center">
             <span class="avatar avatar-sm rounded-circle">

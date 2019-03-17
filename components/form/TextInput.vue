@@ -1,11 +1,11 @@
 <template>
   <div class="form-group">
-    <label class="col-lg-3 control-label"><span class="text-danger" v-if="required">*</span> {{ label }}</label>
-    <div class="col-lg-8">
-      <input v-if="isInput" type="text" class="form-control" :placeholder="placeholder" v-model="localValue" @input="onInput">
-      <textarea v-if="isTextarea" :rows="rows" class="form-control" :placeholder="placeholder" v-model="localValue" @input="onInput" />
-      <span v-if="showError && hasError" class="help-block mt5 text-danger"><i class="fa fa-exclamation-triangle"></i> <span v-if="required">必須項目です。</span>{{ max }}文字までに入れてください。</span>
-    </div>
+    <label class="form-control-label">
+      <span class="text-danger" v-if="required">*</span> {{ label }}
+    </label>
+    <input v-if="isInput" type="text" class="form-control" :placeholder="placeholder" v-model="localValue" @input="onInput">
+    <textarea v-if="isTextarea" :rows="rows" class="form-control" :placeholder="placeholder" v-model="localValue" @input="onInput" />
+    <span v-if="showError && hasError" class="help-block mt5 text-danger"><i class="fa fa-exclamation-triangle"></i> <span v-if="required">必須項目です。</span>{{ max }}文字までに入れてください。</span>
   </div>
 </template>
 
@@ -18,7 +18,7 @@ export default {
     placeholder: { type: String, default: () => '' },
     value: { type: String, default: () => '' },
     max: { type: Number, default: () => 30 },
-    rows: { type: Number, default: () => 3 },
+    rows: { type: Number, default: () => 2 },
     showError: { type: Boolean, default: () => false },
     type: { type: String, default: () => 'input' }
   },

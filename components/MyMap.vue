@@ -6,7 +6,7 @@
       :zoom="16"
       ref="map"
       map-type-id="roadmap"
-      style="width: 100%; height: 600px"
+      :style="myStyle"
       @center_changed="onCenterChanged"
     >
     </GmapMap>
@@ -15,12 +15,20 @@
 
 <script lang="js">
 export default {
-  name: 'vue-name',
+  name: 'my-map',
   components: {},
   props: {
-    value: { type: Object, default: { lat: 35.6261591, lng: 139.72360219999996 } }
+    value: { type: Object, default: { lat: 35.6261591, lng: 139.72360219999996 } },
+    height: { type: String, default: () => '600px' }
   },
-  computed: {},
+  computed: {
+    myStyle () {
+      return {
+        width: '100%',
+        height: this.height
+      }
+    }
+  },
   watch: {
     value(val) {
       console.log('was change', val)
