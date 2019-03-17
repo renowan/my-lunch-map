@@ -1,6 +1,6 @@
 <template>
   <div class="main-content">
-    <navbar></navbar>
+    <navbar :is-login="isLogin" :user="user"></navbar>
     <nuxt />
   </div>
 </template>

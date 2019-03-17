@@ -18,7 +18,13 @@
     <!-- User -->
     <ul class="navbar-nav align-items-center d-none d-md-flex">
       <li class="nav-item d-none d-lg-block ml-lg-4">
-        <a href="https://www.creative-tim.com/product/argon-dashboard-pro" target="_blank" class="btn btn-neutral btn-icon">
+        <a class="btn btn-neutral btn-icon" v-if="isLogin">
+          <span class="btn-inner--icon">
+            <i class="ni ni-fat-add"></i>
+          </span>
+          <span class="nav-link-inner--text">マップ作成</span>
+        </a>
+        <a class="btn btn-neutral btn-icon" @click="login" v-else>
           <span class="btn-inner--icon">
             <span class="btn-inner--icon"><img src="~/assets/img/icons/common/google.svg"></span>
           </span>
@@ -29,10 +35,10 @@
         <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <div class="media align-items-center">
             <span class="avatar avatar-sm rounded-circle">
-              <!-- <img alt="Image placeholder" src="../assets/img/theme/team-4-800x800.jpg"> -->
+              <img alt="Image placeholder" :src="user.picture">
             </span>
             <div class="media-body ml-2 d-none d-lg-block">
-              <span class="mb-0 text-sm  font-weight-bold">Jessica Jones</span>
+              <span class="mb-0 text-sm  font-weight-bold">{{ user.name }}</span>
             </div>
           </div>
         </a>
@@ -43,9 +49,16 @@
 </template>
 
 <script lang="js">
+import authMixin from '~/mixins/auth'
+
 export default {
   name: 'navbar',
+  props: {
+    isLogin: { type: Boolean , default: () => false },
+    user: { type: Object , required: true }
+  },
   components: {},
+  mixins: [authMixin],
   computed: {},
   watch: {},
   data () {

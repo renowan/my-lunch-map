@@ -28,7 +28,8 @@ module.exports = {
   */
   css: [
     '~/assets/scss/argon.scss',
-    '~/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css'
+    '~/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css',
+    '~/assets/vendor/nucleo/css/nucleo.css'
     // '@/static/css/customize.css'
   ],
 
