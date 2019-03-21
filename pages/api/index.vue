@@ -234,6 +234,7 @@ export default {
       this.currentMidx = this.markers.length - 1
       this.infoWindowPos = position
       this.infoContent = '新しいお店'
+      console.log('on click')
     },
     loading() {
       this.$store.commit('app/isLoading', true)
@@ -258,6 +259,6 @@ export default {
 <style lang="scss">
 .map {
   width: 100%;
-  height: 60%;
+  height: 600px;
 }
 </style>

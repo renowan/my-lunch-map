@@ -1,48 +1,65 @@
 <template>
   <div>
 
-    <div class="container" v-if="mapDetail">
-      <div class="row pt20 mb30">
-        <div class="col-xs-9">
+    <div class="header bg-gradient-primary pt-2 pt-md-6">
+      <div class="container-fluid">
+        <div class="header-body">
 
-          <h4>{{ mapDetail.name }}<small class="ml10"> 作成者: {{ mapDetail.creatorName }}</small></h4>
-          <p class="text-muted">{{ mapDetail.comment || 'コメントなし' }}</p>
+           {{ mapDetail.name }}
+          <small>作成者: {{ mapDetail.creatorName }}</small>
+          <p class="mb-n" v-if="mapDetail.description">{{ mapDetail.description }}</p>
 
-        </div>
-        <div class="col-xs-3 text-right">
-          <span class="label label-primary" v-if="permissionLabel === 1"><i class="fa fa-certificate"></i> マップオーナー</span>
-          <span class="label label-default" v-if="permissionLabel === 2"><i class="fa fa-lock"></i> 編集不可</span>
-          <span class="label label-primary" v-if="permissionLabel === 3"><i class="fa fa-pencil"></i> 誰でも編集できる</span>
         </div>
       </div>
     </div>
 
-    <div class="mapplic-element" v-if="mapDetail">
-      <div class="mapplic-container">1</div>
-      <div class="mapplic-sidebar">
-        <div class="mapplic-list-container">
-          sss
+    <div class="container-fluid mt--7">
+      <div class="row">
+        <div class="col-4">
+          <div class="card card-stats border-0 pin-list-wapper">
+            <div class="card-header">
+              ピン一覧
+            </div>
+            <div class="pin-list">
+              <ul>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+                <li>hohoogo</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-8">
+          <div class="card card-stats border-0">
+            <div class="card shadow border-0">
+              <ShareMap v-model="center" :markers="markers" height="600px" @add-marker="addMarker" />
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="container" v-if="noFind">
-      <div class="col-xs-12 pt40 error-box">
-        <h2 class="mb30">マップデータがありません</h2>
-        <nuxt-link to="/">Topに戻る</nuxt-link>
-      </div>
-    </div>
-    <div class="container" v-if="error">
-      <div class="col-xs-12 pt40 error-box">
-        <h2 class="mb30">エラー</h2>
-        <nuxt-link to="/">Topに戻る</nuxt-link>
-      </div>
-    </div>
   </div>
 </template>
 
 <script lang="js">
 import { mapGetters } from 'vuex'
+import ShareMap from '~/components/pages/map/ShareMap.vue'
+import MyMap from '~/components/MyMap.vue'
 
 export default {
   name: 'map-page',
@@ -58,7 +75,9 @@ export default {
     console.log('mapDetail', mapDetail)
     return { mapDetail }
   },
-  components: {},
+  components: {
+    ShareMap
+  },
   computed: Object.assign({},
     mapGetters({
       app: 'app/state',
@@ -92,45 +111,60 @@ export default {
     return {
       mapDetail: null,
       noFind: false,
-      error: false
+      error: false,
+      center: {
+        lat: 35.6261591,
+        lng: 139.72360219999996
+      },
+      markers: [],
+      isCreateMarker: false,
+      showCreateMarkerModal: false
     }
   },
   created () {},
-  methods: {}
+  methods: {
+    addMarker(obj) {
+      if (this.isCreateMarker) {
+        return
+      }
+      this.isCreateMarker = true
+      this.markers.push(obj)
+      setTimeout(() => {
+        this.showCreateMarkerModal = true
+      }, 1000);
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
-.error-box {
-  margin-top: 120px;
-  text-align: center;
+.header-body {
+  color: #fff;
+  font-size: 1.6rem;
+  font-weight: 600;
+  // text-align: center;
+  padding-bottom: 8rem;
 }
 
-.mapplic-element {
-  background-color: #f8f8f8;
-  overflow: hidden;
-  height: 600px;
-  .mapplic-container {
-    background-color: #f8f8f8;
-    display: inline-block;
-    overflow: hidden;
-    position: relative;
-    width: 70%;
-    height: 100%;
-    border-left: 1px solid #e5e5e5;
+.pin-list-wapper {
+  min-height: 600px;
+}
+.map-wapper {
+  min-height: 600px;
+}
+
+.pin-list {
+  height: 536px;
+  overflow-y: scroll;
+
+  ul {
+    margin: 0;
+    padding: 0;
   }
-  .mapplic-sidebar {
-    background-color: #fafafa;
-    width: 30%;
-    height: 100%;
-    float: left;
-    position: relative;
-  }
-  .mapplic-list-container {
-    padding: 25px;
-    height: 100%;
-    overflow-y: auto;
-    box-sizing: border-box;
+
+  li {
+    list-style: none;
+    padding: .5rem 1.5rem;
   }
 }
 </style>

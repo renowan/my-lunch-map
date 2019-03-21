@@ -6,6 +6,7 @@
           <th scope="col" width="30">No.</th>
           <th scope="col">作成者</th>
           <th scope="col" width="200">エリア</th>
+          <th scope="col" width="120" class="text-center">公開編集</th>
           <th scope="col" width="200">作成者</th>
           <th scope="col" width="200">作成日</th>
         </tr>

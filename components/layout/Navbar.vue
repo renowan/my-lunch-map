@@ -55,7 +55,7 @@ export default {
   name: 'navbar',
   props: {
     isLogin: { type: Boolean , default: () => false },
-    user: { type: Object , required: true }
+    user: { required: true }
   },
   components: {},
   mixins: [authMixin],

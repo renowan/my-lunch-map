@@ -3,7 +3,6 @@
   <div class="header bg-gradient-primary pt-5 pt-md-7">
     <div class="container-fluid">
       <div class="header-body">
-        <!-- Card stats -->
 
         マップを作ってシェアしましょう<br>
         <small>マップを作るにはログインが必要です</small>

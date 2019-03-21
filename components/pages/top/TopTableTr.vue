@@ -5,15 +5,15 @@
       <nuxt-link :to="'/map/' + item.id">{{ item.name }}</nuxt-link>
     </th>
     <td>{{ item.address }}</td>
-    <td>
-      <span class="badge badge-dot mr-4">
-        {{ item.creatorName }}
-      </span>
+    <td class="text-center">
+      <i v-if="item.permission === 1" class="ni ni-check-bold text-primary" />
+      <i v-else class="ni ni-fat-remove" />
     </td>
     <td>
-      <span class="badge badge-dot mr-4">
-        {{ myDate }}
-      </span>
+      {{ item.creatorName }}
+    </td>
+    <td>
+      {{ myDate }}
     </td>
   </tr>
 </template>
@@ -31,7 +31,10 @@
         const seconds = this.item.createdAt.seconds * 1000
         const d = new Date(seconds)
         return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`
-      }
+      },
+      // canEdit() {
+      //   return this.item.permission === 0 ? '✗'
+      // }
     },
     watch: {},
     data () {
