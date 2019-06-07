@@ -131,15 +131,15 @@ export default {
       ]
     }
   },
-  async asyncData({ store, app }) {
-    const token = app.$cookies.get('__session')
-    const headers = {
-      'Authorization': `Bearer ${token}`
-    }
-    const mapList = await store.dispatch('app/getMap')
+  // async asyncData({ store, app }) {
+  //   const token = app.$cookies.get('__session')
+  //   const headers = {
+  //     'Authorization': `Bearer ${token}`
+  //   }
+  //   const mapList = await store.dispatch('app/getMap')
 
-    return { mapList }
-  },
+  //   return { mapList }
+  // },
   computed: Object.assign({},
     mapGetters({
       app: 'app/state',
@@ -199,8 +199,8 @@ export default {
     onBoundsChanged (bounds) {
       console.log('bounds', bounds)
       if (bounds) {
-        this.mapInfo.lat = {min: bounds.ga.j, max: bounds.ga.l}
-        this.mapInfo.lng = {min: bounds.ma.j, max: bounds.ma.l}
+        // this.mapInfo.lat = {min: bounds.ga.j, max: bounds.ga.l}
+        // this.mapInfo.lng = {min: bounds.ma.j, max: bounds.ma.l}
       }
     },
     setPlace(place) {

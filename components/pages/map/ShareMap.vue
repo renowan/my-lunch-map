@@ -22,8 +22,9 @@
         :key="index"
         :position="m.position"
         :clickable="true"
-        :draggable="true"
+        :draggable="draggable"
         @click="onClickMarker(m, index)"
+        @mouseup="mouseup"
       />
     </GmapMap>
   </div>
@@ -36,6 +37,7 @@ export default {
   props: {
     value: { type: Object, default: { lat: 35.6261591, lng: 139.72360219999996 } },
     markers: { type: Array, default: () => [] },
+    draggable: { type: Boolean, default: () => false },
     height: { type: String, default: () => '600px' }
   },
   computed: {
@@ -128,7 +130,6 @@ export default {
       // }
     },
     onCLickMap(obj) {
-      console.log('onCLickMap')
       const position = {
         lat: obj.latLng.lat(),
         lng: obj.latLng.lng()
@@ -147,6 +148,9 @@ export default {
       // this.currentMidx = this.markers.length - 1
       // this.infoWindowPos = position
       // this.infoContent = '新しいお店'
+    },
+    mouseup() {
+      console.log('mouseup')
     }
   }
 }
