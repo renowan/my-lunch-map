@@ -4,8 +4,7 @@
     <div class="header bg-gradient-primary pt-2 pt-md-6">
       <div class="container-fluid">
         <div class="header-body">
-
-           {{ mapDetail.name }}
+          {{ mapDetail.name }}
           <small>作成者: {{ mapDetail.creatorName }}</small>
 
           <!-- <div class="float-right edit-icon mt-4">
@@ -217,7 +216,6 @@ export default {
   color: #fff;
   font-size: 1.6rem;
   font-weight: 600;
-  // text-align: center;
   padding-bottom: 8rem;
 }
 
