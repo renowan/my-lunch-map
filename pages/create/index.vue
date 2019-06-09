@@ -23,7 +23,7 @@
                 </div>
               </div>
 
-              <TextInput v-model="creatorName" label="作成者名" placeholder="作成者名" required :max="30" :show-error="showError" />
+              <TextInput v-model="creatorName" label="作成者名" placeholder="作成者名" :disabled="true" :max="30" />
               <TextInput v-model="name" label="マップ名" placeholder="マップ名" required :max="100" :show-error="showError" />
               <TextInput v-model="address" label="住所" placeholder="住所" :max="100" :show-error="showError" />
               <TextInput v-model="description" label="コメント" placeholder="コメント" type="textarea" :max="200" :show-error="showError" />

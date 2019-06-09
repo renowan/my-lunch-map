@@ -31,18 +31,7 @@
           <span class="nav-link-inner--text">ログイン</span>
         </a>
       </li>
-      <li class="nav-item dropdown" v-if="isLogin">
-        <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <div class="media align-items-center">
-            <span class="avatar avatar-sm rounded-circle">
-              <img alt="Image placeholder" :src="user.picture">
-            </span>
-            <div class="media-body ml-2 d-none d-lg-block">
-              <span class="mb-0 text-sm  font-weight-bold">{{ user.name }}</span>
-            </div>
-          </div>
-        </a>
-      </li>
+      <user-drop-down v-if="isLogin" :user="user" @logout="logout" />
     </ul>
   </div>
 </nav>
@@ -50,6 +39,7 @@
 
 <script lang="js">
 import authMixin from '~/mixins/auth'
+import UserDropDown from '~/components/layout/UserDropdown.vue'
 
 export default {
   name: 'navbar',
@@ -57,7 +47,9 @@ export default {
     isLogin: { type: Boolean , default: () => false },
     user: { required: true }
   },
-  components: {},
+  components: {
+    UserDropDown
+  },
   mixins: [authMixin],
   computed: {},
   watch: {},
@@ -65,7 +57,11 @@ export default {
     return {}
   },
   created () {},
-  methods: {}
+  methods: {
+    logout() {
+      this.$emit('logout')
+    }
+  }
 }
 </script>
 

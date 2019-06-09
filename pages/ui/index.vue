@@ -24,6 +24,10 @@
           </div>
         </div>
 
+        <div class="col-12">
+          <!-- <UserDropDown></UserDropDown> -->
+        </div>
+
 
       </div>
     </div>
@@ -39,11 +43,13 @@ import firebase from '~/plugins/firebase'
 import auth from '~/plugins/auth'
 import authMixin from '~/mixins/auth'
 import Modal from '~/components/bootstrap/Modal.vue'
+import UserDropDown from '~/components/layout/UserDropdown.vue'
 
 export default {
   name: 'ui',
   components: {
     's-modal': Modal,
+    UserDropDown
   },
   data() {
     return {

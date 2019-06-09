@@ -4,7 +4,7 @@
       <div class="row">
         <div class="col-xs-6 pt10">
           <h2 class="mb20">
-            API Test
+            API Test {{ page }}
           </h2>
 
           <p>誰でも編集できるシェアマップ: isLoading: {{ isLoading }}</p>
@@ -20,6 +20,9 @@
               <a class="btn btn-default" @click="getMapList">get map</a>
               <a class="btn btn-default" @click="loading">loading</a>
               <a class="btn btn-default" @click="getUser">getUser</a>
+              <a class="btn btn-default" @click="pagnation">pagnation</a>
+              <a class="btn btn-default" @click="page = page + 1">page ++</a>
+              <a class="btn btn-default" @click="page = page - 1">page --</a>
             </li>
           </ul>
 
@@ -91,6 +94,7 @@ export default {
   },
   data() {
     return {
+      page: 0,
       foo: 0,
       mapList: [],
 
@@ -251,6 +255,16 @@ export default {
       // this.$store.dispatch('map/getUser', uid).then((response) => {
       //   console.log('response', response)
       // })
+    },
+    pagnation() {
+      const params = {
+        count: 3,
+        page: this.page
+      }
+      this.$store.dispatch('map/pagnation', params).then(response => {
+        console.log('response', response)
+        response
+      })
     }
   }
 }

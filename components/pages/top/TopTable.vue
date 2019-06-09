@@ -12,7 +12,7 @@
         </tr>
       </thead>
       <tbody>
-        <TopTableTr v-for="(item, index) in mapList" :key="index" :item="item" />
+        <TopTableTr v-for="(item, index) in mapList" :key="index" :item="item" :index="index" />
       </tbody>
     </table>
   </div>

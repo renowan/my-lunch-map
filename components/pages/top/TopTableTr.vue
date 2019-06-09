@@ -1,6 +1,6 @@
 <template>
   <tr>
-    <td>1</td>
+    <td>{{ index + 1 }}</td>
     <th>
       <nuxt-link :to="'/map/' + item.id">{{ item.name }}</nuxt-link>
     </th>

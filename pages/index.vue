@@ -21,9 +21,12 @@
 
           <TopTable :map-list="mapList" />
 
-
-          <top-table-footer />
-
+          <top-table-footer
+          :page="page"
+          :prev-disabled="prevDisabled"
+          :next-disabled="nextDisabled"
+          @go-prev="goPrev"
+          @go-next="goNext" />
 
         </div>
       </div>
@@ -35,18 +38,20 @@
 <script>
 import { mapGetters } from 'vuex'
 import authMixin from '~/mixins/auth'
-// import TopTableTr from '~/components/TopTableTr'
 import CardStats from '~/components/layout/CardStats'
 import TopTable from '~/components/pages/top/TopTable.vue'
 import TopTableFooter from '~/components/pages/top/TopTableFooter.vue'
 
+const count = 10
+
 export default {
   async asyncData({ store, app }) {
-    const mapList = await store.dispatch('map/getMap')
+    // const mapList = await store.dispatch('map/getMap', count)
+    const params = { count, page: 0 }
+    const mapList = await store.dispatch('map/pagnation', params)
     return { mapList }
   },
   components: {
-    // TopTableTr,
     CardStats,
     TopTable,
     TopTableFooter
@@ -54,6 +59,7 @@ export default {
   mixins: [authMixin],
   data() {
     return {
+      page: 0,
       mapList: []
     }
   },
@@ -63,8 +69,35 @@ export default {
       user: 'app/user',
       isLoading: 'app/isLoading',
       isLogin: 'app/isLogin'
-    }), {}
-  )
+    }), {
+      prevDisabled() {
+        return this.page < 1
+      },
+      nextDisabled() {
+        return !this.mapList.length
+      }
+    }
+  ),
+  methods: {
+    goPrev() {
+      if (this.page < 1) {
+        return
+      }
+      this.page -= 1
+      this.loadMapList()
+    },
+    goNext() {
+      console.log('goNext')
+      this.page += 1
+      this.loadMapList()
+    },
+    loadMapList() {
+      const params = { count, page: this.page }
+      this.$store.dispatch('map/pagnation', params).then(response => {
+        this.mapList = response
+      })
+    }
+  }
 }
 </script>
 

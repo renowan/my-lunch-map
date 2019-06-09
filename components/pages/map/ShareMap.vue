@@ -14,7 +14,7 @@
       :options="infoOptions" 
       :position="infoWindowPos" 
       :opened="infoWinOpen" 
-      @closeclick="infoWinOpen = false">
+      @closeclick="closeInfoWin">
         {{infoContent}}
       </gmap-info-window>
       <gmap-marker
@@ -23,7 +23,8 @@
         :position="m.position"
         :clickable="true"
         :draggable="draggable"
-        @click="onClickMarker(m, index)"
+        :animation="m.animation"
+        @click="onClickMarker(index)"
         @mouseup="mouseup"
       />
     </GmapMap>
@@ -38,7 +39,10 @@ export default {
     value: { type: Object, default: { lat: 35.6261591, lng: 139.72360219999996 } },
     markers: { type: Array, default: () => [] },
     draggable: { type: Boolean, default: () => false },
-    height: { type: String, default: () => '600px' }
+    height: { type: String, default: () => '600px' },
+    infoWinOpen: { type: Boolean, default: () => false },
+    infoWindowPos: { type: Object, default: () => null },
+    infoContent: { type: String, default: () => '' },
   },
   computed: {
     myStyle () {
@@ -50,11 +54,11 @@ export default {
   },
   watch: {
     value(val) {
-      // console.log('was change', val)
-      const center = this.mapInfo.center
-      if (center.lat !== val.lat && center.lng !== val.lng) {
-        this.mapInfo.moveTo = val
-      }
+      console.log('was change', val)
+      // const center = this.mapInfo.center
+      // if (center.lat !== val.lat && center.lng !== val.lng) {
+      //   this.mapInfo.moveTo = val
+      // }
     }
   },
   data () {
@@ -63,7 +67,6 @@ export default {
         mapTypeControl: false,
         fullscreenControl: false,
       },
-
       // search
       place: '五反田',
 
@@ -83,21 +86,16 @@ export default {
       
 
       // pin info
-      infoWinOpen: false,
-      infoWindowPos: null,
+      // infoWinOpen: false,
+      // infoWindowPos: null,
       currentMidx: null,
-      infoContent: '',
+      // infoContent: '',
       infoOptions: {
         pixelOffset: {
           width: 0,
-          height: -35
+          height: -70
         }
       },
-
-      // markers
-      // markers: [
-
-      // ]
     }
   },
   created () {
@@ -109,8 +107,8 @@ export default {
         lat: place.geometry.location.lat(),
         lng: place.geometry.location.lng()
       }
-      console.log('lat', place.geometry.location.lat())
-      console.log('lng', place.geometry.location.lng())
+      // console.log('lat', place.geometry.location.lat())
+      // console.log('lng', place.geometry.location.lng())
     },
     onCenterChanged (centerVal) {
       const lat = centerVal.lat()
@@ -119,7 +117,9 @@ export default {
       this.mapInfo.center = center
       this.$emit('input', center)
     },
-    onClickMarker(marker, index) {
+    onClickMarker(index) {
+      console.log('onClickMarker', index)
+      this.$emit('on-click-marker', index)
       // this.infoWindowPos = marker.position
       // this.infoContent = marker.infoText
       // if (this.currentMidx == index) {
@@ -134,15 +134,10 @@ export default {
         lat: obj.latLng.lat(),
         lng: obj.latLng.lng()
       }
-      // this.markers.push({
-      //   position,
-      //   title: '新しいお店',
-      //   description: ''
-      // })
+
       this.$emit('add-marker', {
         position,
-        title: '新しいお店',
-        description: ''
+        infoText: '新しいお店',
       })
       // this.infoWinOpen = true
       // this.currentMidx = this.markers.length - 1
@@ -151,6 +146,9 @@ export default {
     },
     mouseup() {
       console.log('mouseup')
+    },
+    closeInfoWin() {
+      this.$emit('close-info-win')
     }
   }
 }

@@ -3,9 +3,11 @@
     <label class="form-control-label">
       <span class="text-danger" v-if="required">*</span> {{ label }}
     </label>
-    <input v-if="isInput" type="text" class="form-control" :placeholder="placeholder" v-model="localValue" @input="onInput">
+    <input v-if="isInput" type="text" class="form-control" :placeholder="placeholder" v-model="localValue" @input="onInput" :disabled="disabled">
     <textarea v-if="isTextarea" :rows="rows" class="form-control" :placeholder="placeholder" v-model="localValue" @input="onInput" />
-    <span v-if="showError && hasError" class="help-block mt5 text-danger"><i class="fa fa-exclamation-triangle"></i> <span v-if="required">必須項目です。</span>{{ max }}文字までに入れてください。</span>
+    <div v-if="showError && hasError" class="mt-2 help-block text-xs text-danger">
+      <i class="fa fa-exclamation-triangle"></i> <span v-if="required">必須項目です。</span>{{ max }}文字までに入れてください。
+    </div>
   </div>
 </template>
 
@@ -14,6 +16,7 @@ export default {
   name: 'input-form',
   props: {
     required: { type: Boolean, default: () => false },
+    disabled: { type: Boolean, default: () => false },
     label: { type: String, default: () => 'label' },
     placeholder: { type: String, default: () => '' },
     value: { type: String, default: () => '' },

@@ -20,17 +20,7 @@
     </div>
 
     <div class="container-fluid mt--7">
-      <!-- <div class="row mb-3" v-if="!isAddMarkerMode">
-        <div class="col-12 text-right">
-          <button type="button" class="btn btn-info btn-sm" @click="switchToAddMarkerMode" key="btn-switchToAddMarkerMode">ピン追加</button>
-        </div>
-      </div> -->
-      <!-- <div class="row mb-3" v-else>
-        <div class="col-12 text-right">
-          <button type="button" class="btn btn-info btn-sm" @click="addMarkerExe" key="btn-addMarkerExe">ここに決定</button>
-          <button type="button" class="btn btn-secondary btn-sm" @click="addMarkerCancel" key="btn-addMarkerCancel">キャンセル</button>
-        </div>
-      </div> -->
+
       <div class="row">
         <div class="col-4">
           <div class="card card-stats border-0 pin-list-wapper">
@@ -38,7 +28,7 @@
               {{ cardTitle }}
 
               <button 
-              v-if="!isAddMarkerMode"
+              v-if="showAddMarkerBtn"
               class="btn btn-icon btn-3 btn-primary btn-sm btn-add-marker" 
               type="button" 
               @click="switchToAddMarkerMode">
@@ -50,23 +40,23 @@
 
             <div class="pin-list-box" v-if="!isAddMarkerMode">
               <ul>
-                <pin-list />
-                <pin-list />
-                <pin-list />
+                <marker-list 
+                v-for="(marker, index) in myMarkers" 
+                :key="index" 
+                :marker="marker"
+                :index="index"
+                :current-marker-index="currentMarkerIndex"
+                @on-click-mark-list="onClickMarkList" />
               </ul>
             </div>
 
-            <div class="card-body" v-else>
-              <TextInput v-model="newMarkerObj.name" label="作成者名" placeholder="作成者名" required :max="30" :show-error="showError" />
-              <TextInput v-model="newMarkerObj.description" label="コメント" placeholder="コメント" type="textarea" :max="200" />
-              <!-- <div class="row">
-                <div class="col-6">
-                  <button type="button" class="btn btn-primary btn-block" @click="onCreateMarker">作成</button>
-                </div>
-              </div> -->
-              <button type="button" class="btn btn-primary btn-block mb-2" @click="onCreateMarker">作成</button>
-              <button type="button" class="btn btn-secondary btn-block mb-2" @click="addMarkerCancel">キャンセル</button>
-            </div>
+            <new-marker-form
+            v-else
+            :user-name="userName"
+            :new-marker="newMarker"
+            :isLogin="isLogin"
+            @push-marker="pushMarker"
+            @add-marker-cancel="addMarkerCancel" />
 
           </div>
         </div>
@@ -74,11 +64,16 @@
           <div class="card card-stats border-0">
             <div class="card shadow border-0">
               <ShareMap 
-              v-model="mapDetail.center" 
+              v-model="center" 
               :markers="myMarkers"
               :draggable="draggable"
-              height="600px" 
-              @add-marker="addMarker" />
+              :info-win-open="infoWinOpen"
+              :info-window-pos="infoWindowPos"
+              :info-content="infoContent"
+              height="600px"
+              @on-click-marker="onClickMarkList"
+              @add-marker="addMarker"
+              @close-info-win="closeInfoWin" />
             </div>
           </div>
         </div>
@@ -92,7 +87,8 @@
 import { mapGetters } from 'vuex'
 import ShareMap from '~/components/pages/map/ShareMap.vue'
 import MyMap from '~/components/MyMap.vue'
-import PinList from '~/components/pages/map/PinList.vue'
+import MarkerList from '~/components/pages/map/MarkerList.vue'
+import NewMarkerForm from '~/components/pages/map/NewMarkerForm.vue'
 import TextInput from '~/components/form/TextInput.vue'
 
 export default {
@@ -102,15 +98,24 @@ export default {
     if (!mapid) {
       return { error: true }
     }
-    const mapDetail = await store.dispatch('map/getMapDetail', mapid)
-    if (!mapDetail.name) {
-      return { noFind: true }
-    }
-    return { mapDetail }
+
+    return Promise.all([
+      store.dispatch('map/getMapDetail', mapid),
+      store.dispatch('map/getMapMarkers', mapid)
+    ]).then(response => {
+      const mapDetail = response[0]
+      const markers = response[1]
+      if (!mapDetail.name) {
+        return { noFind: true }
+      }
+      const center = mapDetail.center
+      return { mapDetail, center, mapid, markers }
+    })
   },
   components: {
     ShareMap,
-    PinList,
+    MarkerList,
+    NewMarkerForm,
     TextInput
   },
   computed: Object.assign({},
@@ -148,12 +153,27 @@ export default {
       },
       cardTitle() {
         return this.isAddMarkerMode ? '新規ピン' : 'ピン一覧'
+      },
+      userName() {
+        return this.user ? this.user.name : 'タイヤーセールスマン'
+      },
+      // マップを作成された本人
+      isOnwer() {
+        if (!this.mapDetail || !this.user || !this.isLogin) {
+          return false
+        }
+        return this.mapDetail.user.user_id === this.user.user_id
+      },
+      // マーカー追加のボタン表示・非表示
+      showAddMarkerBtn() {
+        return this.isOnwer && !this.isAddMarkerMode
       }
     },
   ),
   watch: {},
   data () {
     return {
+      mapid: '',
       mapDetail: null,
       // マーカーがドラッグ移動できるか
       draggable: false,
@@ -161,35 +181,39 @@ export default {
       error: false,
 
       // 既存マーカー
-      markers: [
-        { position: { lat: 35.62538031935461, lng: 139.7222545873468 }, infoText: 'お店 1' },
-        { position: { lat: 35.62387147595666, lng: 139.72152502649476 }, infoText: 'お店 2' }
-      ],
+      markers: [],
       // 新規作成マーカー用
       newMarker: [],
-      isAddMarkerMode: true,
+      isAddMarkerMode: false,
       showCreateMarkerModal: false,
+      // どのマーカーを選択してるか
+      currentMarkerIndex: -1,
 
-      showError: false,
-      newMarkerObj: {
-        name: '',
-        description: ''
-      }
+      // markerのinfo表示
+      infoWinOpen: false,
+      infoWindowPos: null,
+      infoContent: '',
+
+      // マップの中心点
+      center: {
+        lat: 10,
+        lng: 10
+      },
     }
   },
-  created () {},
+  created () {
+  },
   methods: {
+    resetCenter() {
+      this.center = this.mapDetail.center
+    },
     addMarker(obj) {
       if (!this.isAddMarkerMode || this.newMarker.length > 0) {
         console.log('return')
         return
       }
-      // this.isCreateMarker = true
       console.log('addMarker', obj)
       this.newMarker.push(obj)
-      // setTimeout(() => {
-      //   this.showCreateMarkerModal = true
-      // }, 1000);
     },
     switchToAddMarkerMode() {
       this.newMarker = []
@@ -201,11 +225,42 @@ export default {
       this.isAddMarkerMode = false
       this.draggable = false
     },
-    addMarkerExe() {
-
+    // 新しいマーカーをサーバーに送信
+    pushMarker(order) {
+      console.log('order', order)
+      const data = {
+        mapId: this.mapid,
+        marker: {
+          user: this.user,
+          description: order.description,
+          position: this.newMarker[0].position,
+          title: order.title
+        }
+      }
+      this.$store.dispatch('map/pushMarker', data).then(() => {
+        console.log('ok')
+        this.isAddMarkerMode = false
+      })
     },
-    onCreateMarker() {
-
+    onClickMarkList(index) {
+      console.log('onClickMarkList', index)
+      // this.markers[index]. = 
+      const markers = this.markers.slice(0)
+      markers.forEach((elm, i) => {
+        if (index === i) {
+          markers[i].animation = 1
+          this.infoWindowPos = markers[i].position
+          this.infoContent = markers[i].title
+        } else {
+          markers[i].animation = -1
+        }
+      })
+      this.markers = markers
+      this.currentMarkerIndex = index
+      this.infoWinOpen = true
+    },
+    closeInfoWin() {
+      this.infoWinOpen = false
     }
   }
 }

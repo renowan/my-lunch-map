@@ -32,12 +32,17 @@ export default {
     })
   },
   logout({ commit, state, dispatch }) {
-    return new Promise((resolve, reject) => {
-      firebase.auth().signOut().then(() => {
-        commit('user', null)
-        commit('isLogin', false)
-        resolve()
-      })
+    // return new Promise((resolve, reject) => {
+    //   firebase.auth().signOut().then(() => {
+    //     commit('user', null)
+    //     commit('isLogin', false)
+    //     resolve()
+    //   })
+    // })
+
+    return firebase.auth().signOut().then(() => {
+      commit('user', null)
+      commit('isLogin', false)
     })
   }
 }
