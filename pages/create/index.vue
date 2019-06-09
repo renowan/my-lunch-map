@@ -23,9 +23,9 @@
                 </div>
               </div>
 
-              <TextInput v-model="creatorName" label="作成者名" placeholder="作成者名" :disabled="true" :max="30" />
-              <TextInput v-model="name" label="マップ名" placeholder="マップ名" required :max="100" :show-error="showError" />
-              <TextInput v-model="address" label="住所" placeholder="住所" :max="100" :show-error="showError" />
+              <TextInput v-model="ownerName" label="作成者名" placeholder="作成者名" :disabled="true" :max="30" />
+              <TextInput v-model="title" label="マップ名" placeholder="マップ名" required :max="100" :show-error="showError" />
+              <TextInput v-model="area" label="エリア" placeholder="エリア" :max="100" :show-error="showError" />
               <TextInput v-model="description" label="コメント" placeholder="コメント" type="textarea" :max="200" :show-error="showError" />
 
               <div class="form-group">
@@ -78,13 +78,13 @@ export default {
       isLogin: 'app/isLogin'
     }), {
       canCreate() {
-        if (this.creatorName.length > 100 || this.creatorName.length < 1) {
+        if (this.ownerName.length > 100 || this.ownerName.length < 1) {
           return false
         }
-        if (this.name.length > 100 || this.name.length < 1) {
+        if (this.title.length > 100 || this.title.length < 1) {
           return false
         }
-        if (this.address.length > 100) {
+        if (this.area.length > 100) {
           return false
         }
         if (this.description.length > 200) {
@@ -95,18 +95,18 @@ export default {
     }
   ),
   created() {
-    this.creatorName = this.user ? this.user.name : 'タイヤーセールスマン'
+    this.ownerName = this.user ? this.user.name : 'タイヤーセールスマン'
   },
   data () {
     return {
-      creatorName: '',
+      ownerName: '',
       place: '五反田',
       center: {
         lat: 35.6261591,
         lng: 139.72360219999996
       },
-      name: '',
-      address: '',
+      title: '',
+      area: '',
       description: '',
       showError: false,
       permission: 0
@@ -127,14 +127,12 @@ export default {
         return
       }
       const postObj = {
-        creatorName: this.creatorName,
-        user: {
-          user_id: this.user.user_id,
-          name: this.user.name
-        },
+        ownerName: this.ownerName,
+        user_id: this.user.user_id,
+        userName: this.user.name,
         center: this.center,
-        name: this.name,
-        address: this.address,
+        title: this.title,
+        area: this.area,
         description: this.description,
         permission: this.permission
       }

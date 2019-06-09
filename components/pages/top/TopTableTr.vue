@@ -2,15 +2,15 @@
   <tr>
     <td>{{ index + 1 }}</td>
     <th>
-      <nuxt-link :to="'/map/' + item.id">{{ item.name }}</nuxt-link>
+      <nuxt-link :to="'/map/' + item.id">{{ item.title }}</nuxt-link>
     </th>
-    <td>{{ item.address }}</td>
+    <td>{{ item.area }}</td>
     <td class="text-center">
       <i v-if="item.permission === 1" class="ni ni-check-bold text-primary" />
       <i v-else class="ni ni-fat-remove" />
     </td>
     <td>
-      {{ item.creatorName }}
+      {{ item.ownerName }}
     </td>
     <td>
       {{ myDate }}

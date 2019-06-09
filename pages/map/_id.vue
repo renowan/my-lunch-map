@@ -1,11 +1,11 @@
 <template>
   <div>
 
-    <div class="header bg-gradient-primary pt-2 pt-md-6">
+    <div class="header bg-gradient-primary pt-2 pt-md-6" v-if="mapDetail">
       <div class="container-fluid">
         <div class="header-body">
-          {{ mapDetail.name }}
-          <small>作成者: {{ mapDetail.creatorName }}</small>
+          {{ mapDetail.title }}
+          <small>作成者: {{ mapDetail.ownerName }}</small>
 
           <!-- <div class="float-right edit-icon mt-4">
             <div class="icon icon-shape bg-info text-white rounded-circle shadow">
@@ -104,8 +104,9 @@ export default {
       store.dispatch('map/getMapMarkers', mapid)
     ]).then(response => {
       const mapDetail = response[0]
+      console.log('mapDetail', mapDetail)
       const markers = response[1]
-      if (!mapDetail.name) {
+      if (!mapDetail.title) {
         return { noFind: true }
       }
       const center = mapDetail.center
@@ -137,7 +138,7 @@ export default {
         }
 
         // Owner
-        if (mapDetail.user.user_id === user.user_id) {
+        if (mapDetail.user_id === user.user_id) {
           return 1
         }
 
@@ -162,7 +163,7 @@ export default {
         if (!this.mapDetail || !this.user || !this.isLogin) {
           return false
         }
-        return this.mapDetail.user.user_id === this.user.user_id
+        return this.mapDetail.user_id === this.user.user_id
       },
       // マーカー追加のボタン表示・非表示
       showAddMarkerBtn() {
@@ -227,7 +228,6 @@ export default {
     },
     // 新しいマーカーをサーバーに送信
     pushMarker(order) {
-      console.log('order', order)
       const data = {
         mapId: this.mapid,
         marker: {
@@ -238,8 +238,10 @@ export default {
         }
       }
       this.$store.dispatch('map/pushMarker', data).then(() => {
-        console.log('ok')
         this.isAddMarkerMode = false
+        this.$store.dispatch('map/getMapMarkers', this.mapid).then(markers => {
+          this.markers = markers
+        })
       })
     },
     onClickMarkList(index) {
