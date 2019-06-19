@@ -114,12 +114,13 @@ export default {
   },
   methods: {
     setPlace(place) {
+      if (!place.geometry) {
+        return
+      }
       this.center = {
         lat: place.geometry.location.lat(),
         lng: place.geometry.location.lng()
       }
-      console.log('lat', place.geometry.location.lat())
-      console.log('lng', place.geometry.location.lng())
     },
     onCreate() {
       this.showError = true
