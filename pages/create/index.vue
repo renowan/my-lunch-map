@@ -4,7 +4,7 @@
       <div class="container-fluid">
         <div class="header-body">
           マップ作成<br>
-          <small>マップの中心点を決めてください。</small>
+          <small>マーカーを設置してマップの中心点を決めてください。</small>
         </div>
       </div>
     </div>
@@ -38,12 +38,20 @@
                 </div>
                 <div>
                   <label class="radio-inline mr10">
-                    <input type="radio" name="permission" id="permission" :value="1" v-model="permission"> 誰でも編集できる
+                    <input type="radio" name="permission" id="permission" :value="1" v-model="permission"> 編集権リクエストを受付ける
                   </label>
                 </div>
               </div>
 
-              <button id="quick-compose" type="button" class="btn btn-primary btn-block mb-20" @click="onCreate">作成</button>
+              <p class="text-danger text-sm" v-if="!myMarkers.length && showError">
+                マップをクリックしてマーカーを設置してください。
+              </p>
+
+              <button 
+              type="button" 
+              class="btn btn-primary btn-block mb-20"
+              :disabled="!canCreate && showError"
+              @click="onCreate">作成</button>
 
             </div>
 
@@ -51,7 +59,13 @@
         </div>
         <div class="col-8">
           <div class="card shadow border-0">
-            <MyMap v-model="center" height="760px" />
+            <share-map 
+            v-model="center" 
+            :markers="myMarkers"
+            :draggable="true"
+            height="760px"
+            @on-click-marker="onClickMarkList"
+            @add-marker="addMarker" />
           </div>
         </div>
       </div>
@@ -61,13 +75,15 @@
 </template>
 
 <script>
-import MyMap from '~/components/MyMap.vue'
+// import MyMap from '~/components/MyMap.vue'
 import { mapGetters } from 'vuex'
 import TextInput from '~/components/form/TextInput.vue'
+import ShareMap from '~/components/pages/map/ShareMap.vue'
 
 export default {
   components: {
-    MyMap,
+    // MyMap,
+    ShareMap,
     TextInput
   },
   computed: Object.assign({},
@@ -78,9 +94,9 @@ export default {
       isLogin: 'app/isLogin'
     }), {
       canCreate() {
-        if (this.ownerName.length > 100 || this.ownerName.length < 1) {
-          return false
-        }
+        // if (this.ownerName.length > 100 || this.ownerName.length < 1) {
+        //   return false
+        // }
         if (this.title.length > 100 || this.title.length < 1) {
           return false
         }
@@ -109,7 +125,8 @@ export default {
       area: '',
       description: '',
       showError: false,
-      permission: 0
+      permission: 0,
+      myMarkers: []
     }
   },
   methods: {
@@ -117,10 +134,22 @@ export default {
       if (!place.geometry) {
         return
       }
-      this.center = {
+
+      const obj = {
         lat: place.geometry.location.lat(),
         lng: place.geometry.location.lng()
       }
+
+      this.center = obj
+
+      // マーカーがすでに置いてあったら場所を更新する
+      if (this.myMarkers.length) {
+        this.myMarkers[0] = {
+          infoText: '',
+          position: obj
+        }
+      }
+
     },
     onCreate() {
       this.showError = true
@@ -146,6 +175,14 @@ export default {
       }).catch(() => {
         this.$store.commit('app/isLoading', false)
       })
+    },
+    addMarker(obj) {
+      if (this.myMarkers.length < 1) {
+        this.myMarkers.push(obj)
+      }
+    },
+    onClickMarkList() {
+
     }
   }
 }

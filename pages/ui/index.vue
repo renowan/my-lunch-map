@@ -28,7 +28,6 @@
           <!-- <UserDropDown></UserDropDown> -->
         </div>
 
-
       </div>
     </div>
 
@@ -49,7 +48,7 @@ export default {
   name: 'ui',
   components: {
     's-modal': Modal,
-    UserDropDown
+    UserDropDown,
   },
   data() {
     return {

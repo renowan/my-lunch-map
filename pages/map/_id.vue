@@ -3,23 +3,32 @@
 
     <div class="header bg-gradient-primary pt-2 pt-md-6" v-if="mapDetail">
       <div class="container-fluid">
-        <div class="header-body">
+
+        <div class="header-body mt-4">
           {{ mapDetail.title }}
           <small>作成者: {{ mapDetail.ownerName }}</small>
 
-          <!-- <div class="float-right edit-icon mt-4">
-            <div class="icon icon-shape bg-info text-white rounded-circle shadow">
-              <i class="ni ni-pin-3"></i>
-            </div> <span class="edit-icon-text">ピン追加</span>
-          </div> -->
+          <div class="float-right edit-icon mt-2" v-if="isLogin">
+            <!-- <a v-if="showRequestBtn" href="javascript:void(0)" class="btn btn-secondary" @click="permissionRequest">編集権リクエスト</a> -->
+            <button v-if="showRequestBtn" type="button" class="btn btn-secondary" @click="openRequestModal">編集権リクエスト</button>
+            <button v-if="isMapOwner" type="button" class="btn btn-secondary" @click="openRequestApprovalModal">リクエスト承認</button>
+            <button v-if="hasRequest && !hasAddMarkerPermission" type="button" class="btn btn-secondary" disabled>編集権リクエスト済み</button>
+            <button v-if="hasAddMarkerPermission" type="button" class="btn btn-secondary" disabled>編集権承認済み</button>
+          </div>
 
           <p class="mb-n" v-if="mapDetail.description">{{ mapDetail.description }}</p>
-
         </div>
+
       </div>
     </div>
 
     <div class="container-fluid mt--7">
+
+      <div class="row mb-3">
+        <div class="col-12 text-white">
+          isMapOwner: {{ isMapOwner }}, hasRequest: {{ hasRequest }}, hasAddMarkerPermission: {{ hasAddMarkerPermission }}
+        </div>
+      </div>
 
       <div class="row">
         <div class="col-4">
@@ -46,7 +55,10 @@
                 :marker="marker"
                 :index="index"
                 :current-marker-index="currentMarkerIndex"
-                @on-click-mark-list="onClickMarkList" />
+                :user-id="userId"
+                :is-login="isLogin"
+                @on-click-mark-list="onClickMarkList"
+                @on-click-comment="onClickComment" />
               </ul>
             </div>
 
@@ -67,18 +79,54 @@
               v-model="center" 
               :markers="myMarkers"
               :draggable="draggable"
+              
               :info-win-open="infoWinOpen"
               :info-window-pos="infoWindowPos"
               :info-content="infoContent"
-              height="600px"
+              height="700px"
               @on-click-marker="onClickMarkList"
               @add-marker="addMarker"
+              @update-new-marker-position="updateNewMarkerPosition"
               @close-info-win="closeInfoWin" />
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <modal
+      title="リクエスト送信"
+      ok-title="送る"
+      v-model="showRequestModal"
+      @ok="permissionRequest">
+      <div class="form-group mb-0">
+        <label class="form-control-label">リクエストコメント</label>
+        <input type="text" class="form-control" v-model="requestComment" placeholder="リクエストコメント">
+      </div>
+    </modal>
+
+    <modal
+      title="リクエストリスト"
+      size="lg"
+      ok-title="閉じる"
+      :ok-only="true"
+      ok-variant="secondary"
+      v-model="showRequestApprovalModal">
+      <requestList 
+      :list="requestList"
+      @decree="requestDecree" />
+    </modal>
+
+    <modal
+      title="コメント"
+      size="lg"
+      ok-title="閉じる"
+      :ok-only="true"
+      ok-variant="secondary"
+      body-classes="p-0"
+      v-model="showCommentModal">
+        <comment-box :marker="commentTarget" :comment-list="commentList" :comment-index="commentIndex" @send-comment="sendComment" />
+    </modal>
 
   </div>
 </template>
@@ -90,34 +138,55 @@ import MyMap from '~/components/MyMap.vue'
 import MarkerList from '~/components/pages/map/MarkerList.vue'
 import NewMarkerForm from '~/components/pages/map/NewMarkerForm.vue'
 import TextInput from '~/components/form/TextInput.vue'
+import Modal from '~/components/bootstrap/Modal.vue'
+import RequestList from '~/components/pages/map/RequestList.vue'
+import CommentBox from '~/components/pages/map/CommentBox.vue'
 
 export default {
   name: 'map-page',
+  components: {
+    ShareMap,
+    MarkerList,
+    NewMarkerForm,
+    TextInput,
+    Modal,
+    RequestList,
+    CommentBox
+  },
   async asyncData({ store, app, params }) {
     const mapid = params.id
     if (!mapid) {
       return { error: true }
     }
+    const user = store.getters['app/user']
+    const user_id = user ? user.user_id : undefined
 
     return Promise.all([
       store.dispatch('map/getMapDetail', mapid),
-      store.dispatch('map/getMapMarkers', mapid)
+      store.dispatch('map/getMapMarkers', mapid),
+      store.dispatch('map/getUserHasRequest', { mapid, user_id }),
+      store.dispatch('map/getUserHasAddMarkerPermission', { mapid, user_id })
     ]).then(response => {
+      // マップ詳細
       const mapDetail = response[0]
-      console.log('mapDetail', mapDetail)
+      // マーカーリスト
       const markers = response[1]
       if (!mapDetail.title) {
         return { noFind: true }
       }
+
+      // オーナーか
+      const isOwner = user_id === mapDetail.user_id
+
+      // マップ中心点
       const center = mapDetail.center
-      return { mapDetail, center, mapid, markers }
+      // リクエスト済みか
+      const hasRequest = response[2]
+      // // 承認されたリクエストも持っているか
+      const hasAddMarkerPermission = response[3]
+
+      return { mapDetail, center, mapid, markers, hasRequest, hasAddMarkerPermission }
     })
-  },
-  components: {
-    ShareMap,
-    MarkerList,
-    NewMarkerForm,
-    TextInput
   },
   computed: Object.assign({},
     mapGetters({
@@ -126,24 +195,18 @@ export default {
       isLoading: 'app/isLoading',
       isLogin: 'app/isLogin'
     }), {
-      permissionLabel() {
+      // マップを作ったオーナーであること
+      isMapOwner() {
+        if (!this.mapDetail || !this.user || !this.isLogin) {
+          return false
+        }
         const mapDetail = this.mapDetail
         const user = this.user
-        if (!mapDetail) {
-          return 0
-        }
-
-        if (!user) {
-          return 2
-        }
-
-        // Owner
-        if (mapDetail.user_id === user.user_id) {
-          return 1
-        }
-
-        // 2 = 編集不可, 3 = 誰でも
-        return mapDetail.permission === 0 ? 2 : 3
+        return mapDetail.user_id === user.user_id
+      },
+      // マーカーを追加できる人
+      canAddMarker() {
+        return this.isMapOwner || this.hasAddMarkerPermission
       },
       // 編集モードで出し分ける
       myMarkers() {
@@ -158,16 +221,16 @@ export default {
       userName() {
         return this.user ? this.user.name : 'タイヤーセールスマン'
       },
-      // マップを作成された本人
-      isOnwer() {
-        if (!this.mapDetail || !this.user || !this.isLogin) {
-          return false
-        }
-        return this.mapDetail.user_id === this.user.user_id
-      },
       // マーカー追加のボタン表示・非表示
       showAddMarkerBtn() {
-        return this.isOnwer && !this.isAddMarkerMode
+        return this.canAddMarker && !this.isAddMarkerMode
+      },
+      // 編集リクエストボタン
+      showRequestBtn() {
+        return !this.hasRequest && !this.isMapOwner && this.mapDetail.permission === 1
+      },
+      userId() {
+        return this.user ? this.user.user_id : undefined
       }
     },
   ),
@@ -200,6 +263,26 @@ export default {
         lat: 10,
         lng: 10
       },
+
+      // リクエストを送るModal
+      showRequestModal: false,
+      requestComment: '',
+
+      // リクエストを送ってるか
+      hasRequest: false,
+      // リクエスト承認モーダル
+      showRequestApprovalModal: false,
+      // 送られてきたリクエスト
+      requestList: [],
+      // ユーザーの承認されたリクエストを持っているか
+      hasAddMarkerPermission: false,
+
+      // コメントリスト
+      commentTarget: null,
+      // newComment: '',
+      showCommentModal: false,
+      commentIndex: 0,
+      commentList: []
     }
   },
   created () {
@@ -216,6 +299,12 @@ export default {
       console.log('addMarker', obj)
       this.newMarker.push(obj)
     },
+    updateNewMarkerPosition(position) {
+      if (!this.newMarker.length) {
+        return
+      }
+      this.newMarker[0].position = position
+    },
     switchToAddMarkerMode() {
       this.newMarker = []
       this.isAddMarkerMode = true
@@ -229,7 +318,7 @@ export default {
     // 新しいマーカーをサーバーに送信
     pushMarker(order) {
       const data = {
-        mapId: this.mapid,
+        mapid: this.mapid,
         marker: {
           user: this.user,
           description: order.description,
@@ -245,7 +334,6 @@ export default {
       })
     },
     onClickMarkList(index) {
-      console.log('onClickMarkList', index)
       // this.markers[index]. = 
       const markers = this.markers.slice(0)
       markers.forEach((elm, i) => {
@@ -263,6 +351,73 @@ export default {
     },
     closeInfoWin() {
       this.infoWinOpen = false
+    },
+    permissionRequest() {
+      this.$store.commit('app/isLoading', true)
+      this.$store.dispatch('map/permissionRequest', {
+        mapid: this.mapid,
+        name: this.user.name,
+        picture: this.user.picture,
+        user_id: this.user.user_id,
+        title: this.mapDetail.title,
+        requestComment: this.requestComment
+      }).then(response => {
+        this.hasRequest = true
+        this.$store.commit('app/isLoading', false)
+      })
+    },
+    openRequestModal() {
+      this.requestComment = ''
+      this.showRequestModal = true
+    },
+    requestDecree(order) {
+      this.$store.commit('app/isLoading', true)
+      this.$store.dispatch('map/requestDecree', order).then(response => {
+        const requestList = this.requestList.map(elm => {
+          if (order.requestId === elm.requestId) {
+            elm.check = true
+            elm.approve = order.approve
+          }
+          return elm
+        })
+        this.requestList = requestList
+        this.$store.commit('app/isLoading', false)
+      })
+    },
+    openRequestApprovalModal() {
+      this.showRequestApprovalModal = true
+      this.$store.commit('app/isLoading', true)
+      this.$store.dispatch('map/getPermissionRequest', this.mapid).then(response => {
+        this.requestList = response
+        this.$store.commit('app/isLoading', false)
+      })
+    },
+    onClickComment(marker) {
+      this.commentTarget = marker
+      this.showCommentModal = true
+      const order = {
+        mapid: this.mapid,
+        markerId: marker.id,
+      }
+      this.$store.commit('app/isLoading', true)
+      this.$store.dispatch('map/getComment', order).then(response => {
+        this.commentList = response
+        this.$store.commit('app/isLoading', false)
+      })
+    },
+    sendComment(comment) {
+      const order = {
+        comment,
+        mapid: this.mapid,
+        markerId: this.commentTarget.id,
+        user: this.user
+      }
+      this.$store.commit('app/isLoading', true)
+      this.$store.dispatch('map/sendComment', order).then(response => {
+        this.commentList.push(response)
+        this.commentIndex ++
+        this.$store.commit('app/isLoading', false)
+      })
     }
   }
 }
@@ -277,14 +432,14 @@ export default {
 }
 
 .pin-list-wapper {
-  min-height: 600px;
+  min-height: 700px;
 }
 .map-wapper {
-  min-height: 600px;
+  min-height: 700px;
 }
 
 .pin-list-box {
-  height: 536px;
+  height: 636px;
   overflow-y: scroll;
 
   ul {
@@ -307,4 +462,5 @@ export default {
   top: 16px;
   right: 20px;
 }
+
 </style>

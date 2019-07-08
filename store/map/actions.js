@@ -26,6 +26,14 @@ export default {
         return mapList
       })
   },
+  getUserHasRequest({ commit, state, dispatch }, order) {
+    if (!order.user_id) {
+      return false
+    }
+    return db.doc(`user/${order.user_id}/request/${order.mapid}`).get().then((doc) => {
+      return doc.data() !== undefined
+    })
+  },
   getUser({ commit, state, dispatch }, uid) {
     return axios.get(`${functionsUrl}/getUser`, { params: { uid } })
   },
@@ -48,12 +56,11 @@ export default {
   },
   pushMarker({ commit, state, dispatch }, order) {
     order.marker.createdAt = firebase.firestore.FieldValue.serverTimestamp()
-    return db.collection(`markers/${order.mapId}/list`).add(order.marker).then((doc) => {
+    return db.collection(`markers/${order.mapid}/list`).add(order.marker).then((doc) => {
       return true
     })
   },
   pagnation({ commit, state, dispatch }, params) {
-    console.log('params', params)
     const { count, page } = params
     const offset = count * page
 
@@ -65,7 +72,7 @@ export default {
         list.push(data)
       })
       return list
-    } 
+    }
 
     if (offset === 0) {
       // 先頭の取得
@@ -103,21 +110,114 @@ export default {
         })
       })
     }
-
-    // return db.collection('map')
-    //   .orderBy('createdAt', 'desc')
-    //   .startAfter(offset)
-    //   .limit(6)
-    //   .get()
-    //   .then((snapshot) => {
-    //     console.log('snapshot', snapshot)
-    //     const list = []
-    //     snapshot.forEach((doc) => {
-    //       const data = doc.data()
-    //       data.id = doc.id
-    //       list.push(data)
-    //     })
-    //     return list
-    //   })
+  },
+  permissionRequest({ commit, state, dispatch }, order) {
+    order.createdAt = firebase.firestore.FieldValue.serverTimestamp()
+    const permissionOrder = {
+      mapid: order.mapid,
+      name: order.name,
+      picture: order.picture,
+      user_id: order.user_id,
+      check: false,
+      approve: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      requestComment: order.requestComment
+    }
+    const userOrder = {
+      title: order.title,
+      mapid: order.mapid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }
+    return Promise.all([
+      db.doc(`permissionRequest/${order.mapid}/list/${order.user_id}`).set(permissionOrder),
+      db.doc(`user/${order.user_id}/request/${order.mapid}`).set(userOrder)
+    ]).then((response) => {
+      return response
+    })
+  },
+  permissionRequestTest({ commit, state, dispatch }, order) {
+    order.createdAt = firebase.firestore.FieldValue.serverTimestamp()
+    const permissionOrder = {
+      mapid: order.mapid,
+      name: order.name,
+      picture: order.picture,
+      user_id: order.user_id,
+      check: false,
+      approve: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      requestComment: order.requestComment
+    }
+    return Promise.all([
+      db.doc(`permissionRequest/${order.mapid}/list/${order.user_id}`).set(permissionOrder),
+      // db.doc(`user/${order.user_id}/request/${order.mapid}`).set(userOrder)
+    ]).then((response) => {
+      return response
+    })
+  },
+  getPermissionRequest({ commit, state, dispatch }, mapid) {
+    const ref = db.collection(`permissionRequest/${mapid}/list`)
+    const queryRef = ref.where('check', '==', false)
+    return queryRef.get().then((snapshot) => {
+      const list = []
+      snapshot.forEach((doc) => {
+        const data = doc.data()
+        data.requestId = doc.id
+        list.push(data)
+      })
+      return list
+    })
+  },
+  // ユーザーが承認されたリクエストを持っているか
+  getUserHasAddMarkerPermission({ commit, state, dispatch }, order) {
+    if (!order.user_id) {
+      return false
+    }
+    const { mapid } = order
+    const ref = db.collection(`permissionRequest/${mapid}/list`)
+    const queryRef = ref.where('user_id', '==', order.user_id)
+    return queryRef.get().then((snapshot) => {
+      const hasAddMarkerPermission = snapshot.empty === false
+      return hasAddMarkerPermission
+    })
+  },
+  // 編集権、リクエスト承認
+  requestDecree({ commit, state, dispatch }, order) {
+    const value = {
+      approve: order.approve,
+      check: true
+    }
+    return db.doc(`permissionRequest/${order.mapid}/list/${order.requestId}`).update(value).then((doc) => {
+      return true
+    })
+  },
+  getComment({ commit, state, dispatch }, order) {
+    const { mapid, markerId } = order
+    const ref = db.collection(`comment/${mapid}/marker/${markerId}/list`)
+    const queryRef = ref.orderBy('createdAt', 'asc')
+    return queryRef.get().then((snapshot) => {
+      const list = []
+      snapshot.forEach((doc) => {
+        const data = doc.data()
+        data.commentId = doc.id
+        list.push(data)
+      })
+      return list
+    })
+  },
+  sendComment({ commit, state, dispatch }, order) {
+    const commentData = {
+      comment: order.comment,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      name: order.user.name,
+      picture: order.user.picture,
+      user_id: order.user.user_id
+    }
+    return db.collection(`comment/${order.mapid}/marker/${order.markerId}/list`).add(commentData).then((doc) => {
+      return doc.get().then((r) => {
+        const result = r.data()
+        result.commentId = r.id
+        return result
+      })
+    })
   }
 }

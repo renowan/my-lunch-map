@@ -5,7 +5,9 @@
     </h4>
     <div class="mb-2">
       <small><i class="ni ni-single-02"></i> {{ marker.user.name }}</small>
-      <a class="btn-link float-right"><i class="fas fa-comments"></i> コメント</a>
+      <a v-if="isLogin" class="btn-link float-right ml-3" @click="onClickComment"><i class="fas fa-comments"></i> コメント</a>
+      <a v-if="canEditMarker" class="btn-link float-right ml-3"><i class="fas fa-pen"></i> 編集</a>
+      <a v-if="canEditMarker" class="btn-link float-right text-danger"><i class="fas fa-times"></i> 削除</a>
     </div>
     <p>{{ marker.description }}</p>
 
@@ -18,12 +20,19 @@ export default {
   props: {
     marker: { type: Object, required: true },
     currentMarkerIndex: { type: Number, default: () => -1 },
-    index: { type: Number, default: () => -1 }
+    index: { type: Number, default: () => -1 },
+    userId: { type: String, default: () => undefined },
+    isMapOwner: { type: Boolean, default: () => false },
+    isLogin: { type: Boolean, default: () => false }
   },
   components: {},
   computed: {
     activeCls() {
       return this.index === this.currentMarkerIndex ? 'active' : ''
+    },
+    canEditMarker() {
+      const isMarkerOwner = this.marker.user.user_id === this.userId
+      return this.isMapOwner || isMarkerOwner
     }
   },
   watch: {},
@@ -34,6 +43,9 @@ export default {
   methods: {
     onClickMarkList() {
       this.$emit('on-click-mark-list', this.index)
+    },
+    onClickComment() {
+      this.$emit('on-click-comment', this.marker)
     }
   }
 }
@@ -62,7 +74,8 @@ export default {
   }
 
   &.active {
-    background-color: #eee;
+    // background-color: #eee;
+    background-color: #f2f1fd;
   }
 }
 </style>

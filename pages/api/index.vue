@@ -23,6 +23,7 @@
               <a class="btn btn-default" @click="pagnation">pagnation</a>
               <a class="btn btn-default" @click="page = page + 1">page ++</a>
               <a class="btn btn-default" @click="page = page - 1">page --</a>
+              <a class="btn btn-default" @click="sendRequest">sendRequest</a>
             </li>
           </ul>
 
@@ -80,6 +81,7 @@
         />
       </GmapMap>
     </div>
+
   </div>
 </template>
 
@@ -192,7 +194,7 @@ export default {
       })
     },
     hello() {
-      console.log('this', this.$store.commit('app/isLoading', true))
+      // do some
     },
     getMapList() {
       this.$store.dispatch('map/getMap')
@@ -265,6 +267,20 @@ export default {
         console.log('response', response)
         response
       })
+    },
+    sendRequest() {
+      for (let index = 0; index < 12; index++) {        
+        this.$store.dispatch('map/permissionRequestTest', {
+          mapid: 'cmKpDVu4kZF7JwWCLSzz',
+          name: `test-${index}`,
+          picture: 'xxxxxx',
+          user_id: `test-user-id-${index}`,
+          title: 'some-title',
+          requestComment: 'comment-' + index
+        }).then(response => {
+          console.log('response', response)
+        })
+      }
     }
   }
 }

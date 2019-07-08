@@ -8,7 +8,7 @@
       map-type-id="roadmap"
       :style="myStyle"
       @center_changed="onCenterChanged"
-      @click="onCLickMap"
+      @click="onClickMap"
     >
       <gmap-info-window 
       :options="infoOptions" 
@@ -54,11 +54,10 @@ export default {
   },
   watch: {
     value(val) {
-      console.log('was change', val)
-      // const center = this.mapInfo.center
-      // if (center.lat !== val.lat && center.lng !== val.lng) {
-      //   this.mapInfo.moveTo = val
-      // }
+      const center = this.mapInfo.center
+      if (center.lat !== val.lat && center.lng !== val.lng) {
+        this.mapInfo.moveTo = val
+      }
     }
   },
   data () {
@@ -129,7 +128,7 @@ export default {
       //   this.currentMidx = index
       // }
     },
-    onCLickMap(obj) {
+    onClickMap(obj) {
       const position = {
         lat: obj.latLng.lat(),
         lng: obj.latLng.lng()
@@ -144,8 +143,13 @@ export default {
       // this.infoWindowPos = position
       // this.infoContent = '新しいお店'
     },
-    mouseup() {
-      console.log('mouseup')
+    // マーカーをドラッグして位置が更新された
+    mouseup(obj) {
+      const position = {
+        lat: obj.latLng.lat(),
+        lng: obj.latLng.lng()
+      }
+      this.$emit('update-new-marker-position', position)
     },
     closeInfoWin() {
       this.$emit('close-info-win')
