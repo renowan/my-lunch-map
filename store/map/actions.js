@@ -204,6 +204,13 @@ export default {
       return list
     })
   },
+  removeMarker({ commit, state, dispatch }, order) {
+    // return Promise.all([
+    //   db.doc(`permissionRequest/${order.mapid}/list/${order.user_id}`).set(permissionOrder),
+    // ]).then((response) => {
+    //   return response
+    // })
+  },
   sendComment({ commit, state, dispatch }, order) {
     const commentData = {
       comment: order.comment,

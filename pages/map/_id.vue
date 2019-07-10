@@ -24,11 +24,11 @@
 
     <div class="container-fluid mt--7">
 
-      <div class="row mb-3">
+      <!-- <div class="row mb-3">
         <div class="col-12 text-white">
           isMapOwner: {{ isMapOwner }}, hasRequest: {{ hasRequest }}, hasAddMarkerPermission: {{ hasAddMarkerPermission }}
         </div>
-      </div>
+      </div> -->
 
       <div class="row">
         <div class="col-4">
@@ -58,7 +58,8 @@
                 :user-id="userId"
                 :is-login="isLogin"
                 @on-click-mark-list="onClickMarkList"
-                @on-click-comment="onClickComment" />
+                @on-click-comment="onClickComment"
+                @remove-marker="removeMarker" />
               </ul>
             </div>
 
@@ -402,6 +403,12 @@ export default {
       this.$store.commit('app/isLoading', true)
       this.$store.dispatch('map/getComment', order).then(response => {
         this.commentList = response
+        this.$store.commit('app/isLoading', false)
+      })
+    },
+    removeMarker(marker) {
+      this.$store.commit('app/isLoading', true)
+      this.$store.dispatch('map/removeMarker', order).then(response => {
         this.$store.commit('app/isLoading', false)
       })
     },

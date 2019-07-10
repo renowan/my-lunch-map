@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="p-3">
-      <h5>マーカーのタイトル</h5>
+      <h5>{{ markerTitle }}</h5>
     </div>
     <div class="comment-box">
       <table class="table table-flush">
@@ -48,6 +48,9 @@ export default {
     },
     overLength() {
       return this.newComment.length > 100
+    },
+    markerTitle() {
+      return this.marker ? this.marker.title : ''
     }
   },
   watch: {
