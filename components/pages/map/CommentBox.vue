@@ -14,7 +14,7 @@
       <div class="form-row">
         <div class="col-10">
           <div class="form-group">
-            <input class="form-control" :class="{ 'is-invalid': overLength }" placeholder="コメント" type="text" v-model="newComment">
+            <input class="form-control" :class="{ 'is-invalid': overLength }" :placeholder="myPlaceholder" type="text" v-model="newComment" :disabled="!isLogin">
             <div v-if="overLength" class="text-xs text-danger mt-2">
               コメントは100文字以内に入力してください。（{{ newComment.length }}文字）
             </div>
@@ -23,7 +23,6 @@
         <div class="col-2">
           <button class="btn btn-primary btn-block" type="button" @click="send" :disabled="!newComment">送信</button>
         </div>
-
       </div>
     </div>
   </div>
@@ -37,7 +36,8 @@ export default {
   props: {
     marker: { type: Object },
     commentList: { type: Array, default: () => [] },
-    commentIndex: { type: Number, default: () => -1 }
+    commentIndex: { type: Number, default: () => -1 },
+    isLogin: { type: Boolean, default: () => false }
   },
   components: {
     CommentTr
@@ -51,6 +51,9 @@ export default {
     },
     markerTitle() {
       return this.marker ? this.marker.title : ''
+    },
+    myPlaceholder() {
+      return this.isLogin ? 'コメント' : 'コメントするにはログインが必要です。'
     }
   },
   watch: {
@@ -66,6 +69,9 @@ export default {
   created () {},
   methods: {
     send() {
+      if (!this.isLogin) {
+        return
+      }
       this.$emit('send-comment', this.newComment)
     }
   }

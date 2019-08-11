@@ -5,7 +5,7 @@
     </h4>
     <div class="mb-2">
       <small><i class="ni ni-single-02"></i> {{ marker.user.name }}</small>
-      <a v-if="isLogin" class="btn-link float-right ml-3" @click="onClickComment"><i class="fas fa-comments"></i> コメント</a>
+      <a class="btn-link float-right ml-3" @click="onClickComment"><i class="fas fa-comments"></i> コメント</a>
       <!-- <a v-if="canEditMarker" class="btn-link float-right ml-3"><i class="fas fa-pen"></i> 編集</a> -->
       <a v-if="canEditMarker" class="btn-link float-right text-danger" @click="removeMarker"><i class="fas fa-times"></i> 削除</a>
     </div>
@@ -22,8 +22,7 @@ export default {
     currentMarkerIndex: { type: Number, default: () => -1 },
     index: { type: Number, default: () => -1 },
     userId: { type: String, default: () => undefined },
-    isMapOwner: { type: Boolean, default: () => false },
-    isLogin: { type: Boolean, default: () => false }
+    isMapOwner: { type: Boolean, default: () => false }
   },
   components: {},
   computed: {

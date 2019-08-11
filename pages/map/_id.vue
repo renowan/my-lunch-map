@@ -126,7 +126,7 @@
       ok-variant="secondary"
       body-classes="p-0"
       v-model="showCommentModal">
-        <comment-box :marker="commentTarget" :comment-list="commentList" :comment-index="commentIndex" @send-comment="sendComment" />
+        <comment-box :marker="commentTarget" :comment-list="commentList" :comment-index="commentIndex" :is-login="isLogin" @send-comment="sendComment"  />
     </modal>
 
   </div>
